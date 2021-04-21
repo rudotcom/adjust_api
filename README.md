@@ -60,7 +60,6 @@ ___________________
 4. Enter following commands:
 - `python -m venv venv`
 - `source venv/bin/activate`
-5.  Change current directory for **AdjustAPI**
 - `pip install -r requirements.txt`
 - `python manage.py makemigrations`
 - `python manage.py migrate`
