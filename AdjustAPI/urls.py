@@ -1,7 +1,8 @@
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path
+from api.views import DataList
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api', include('api.urls', namespace='api')),
+    path('', DataList.as_view(), name='data'),
 ]
