@@ -13,7 +13,7 @@ Parameters shown in curly brackets are specified below
 _____________
 **REQUEST PARAMETERS**
 
-Filter parameters - one or more of these:
+Filter parameters - one or more of the following:
 
     channel     optional    Channel name ("adcolony", "chartboost", "vungle", "apple_search_ads", "google" ,"facebook", "unityads")
     country     optional    Comma separated list of Two-letter country cods defined in ISO 3166-1 alpha-2
@@ -24,8 +24,8 @@ Filter parameters - one or more of these:
 Grouping and Sorting parameters
 
     group_by    optional    Group data by columns. Comma separated list of columns (one or more of: date, channel, country, operating system)
-    order_by    optional    Order by column. Comma separated list of columns. Default ordering is ascending. Prefix '-' for descending order
-    cpi         optional    Derived metric CPI (cost per install) which is calculated as cpi = spend / installs
+    order_by    optional    Order by column. Comma separated list of columns plus cpi. Default ordering is ascending. Prefix '-' for descending order
+                            cpi is derived metric CPI (cost per install) which is calculated as cpi = spend / installs
 
 Format
 
@@ -69,8 +69,3 @@ ___________________
    Import dataset to the database
 6. Run the server - `python manage.py runserver`
 ________
-
-Testing
-
-   coverage run --omit='*/venv/*' manage.py test
-   coverage html
