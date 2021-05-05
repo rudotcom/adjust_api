@@ -1,10 +1,9 @@
 import datetime
 
-from django.shortcuts import render
 from rest_framework import generics
 from rest_framework.response import Response
 
-from api.serializers import DataSetSerializer
+from api.serializers import DataSetSerializer, ErrorSerializer
 from api.models import SampleDataSet
 from django.db.models import Sum
 
@@ -17,19 +16,23 @@ def validate_date(date_field):
             'exception': f'[{date_field}] value has an invalid date format.',
             'hint': f'Hint: Please ensure that filed format is \"YYYY-MM-DD\"',
         }
-        return context
+        serializer = ErrorSerializer(context)
+        return Response(serializer.data)
 
 
 def check_fields(statement, fields):
     model_fields = [f.name for f in SampleDataSet._meta.get_fields()]
 
     for request_field in fields:
+        request_field = request_field.replace('-', '')
         if request_field not in model_fields:
+
             context = {
                 'exception': f'Non-existent field name \"{request_field}\" in statement \"{statement}\".',
                 'hint': f'Hint: Please check the field names in your statement \"{statement}\"',
             }
-            return context
+            serializer = ErrorSerializer(context)
+            return serializer.data
 
 
 class DataList(generics.ListAPIView):
@@ -45,23 +48,23 @@ class DataList(generics.ListAPIView):
             if key == 'group_by':
 
                 group_by = query_params['group_by'].split(',')
-                exception_context = check_fields('group_by', group_by)
-                if exception_context:
-                    return render(None, 'exception.html', exception_context)
+                exception_serialized = check_fields('group_by', group_by)
+                if exception_serialized:
+                    return Response(exception_serialized)
                 queryset = queryset.values(*group_by)
 
             elif key == 'date_from':
                 date_from = query_params['date_from']
-                exception_context = validate_date(date_from)
-                if exception_context:
-                    return render(None, 'exception.html', exception_context)
+                exception_serialized = validate_date(date_from)
+                if exception_serialized:
+                    return Response(exception_serialized)
                 queryset = queryset.filter(date__gte=date_from)
 
             elif key == 'date_to':
                 date_to = query_params['date_to']
-                exception_context = validate_date(date_to)
-                if exception_context:
-                    return render(None, 'exception.html', exception_context)
+                exception_serialized = validate_date(date_to)
+                if exception_serialized:
+                    return Response(exception_serialized)
                 queryset = queryset.filter(date__lte=date_to)
 
             elif key == 'channel':
@@ -78,9 +81,9 @@ class DataList(generics.ListAPIView):
 
             elif key == 'order_by':
                 order_by = query_params['order_by'].split(',')
-                exception_context = check_fields('order_by', order_by)
-                if exception_context:
-                    return render(None, 'exception.html', exception_context)
+                exception_serialized = check_fields('order_by', order_by)
+                if exception_serialized:
+                    return Response(exception_serialized)
 
             elif key == 'show':
                 show = query_params['show'].split(',')
@@ -101,11 +104,13 @@ class DataList(generics.ListAPIView):
                 'hint': 'Hint: Please check the parameters you use for grouping. '
                         'Appropriate ones are date, channel, country, os',
             }
-            return render(None, 'exception.html', context)
+            serializer = ErrorSerializer(context)
+            return Response(serializer.data)
 
         queryset = queryset.order_by(*order_by)
         # fields to pass to serializer including those from order_by without minus sign
         fields = group_by + show
+
         for order in order_by:
             fields.append(order.replace('-', ''))
 

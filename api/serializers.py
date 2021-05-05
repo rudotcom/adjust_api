@@ -2,6 +2,15 @@ from rest_framework import serializers
 from api.models import SampleDataSet
 
 
+class ErrorSerializer(serializers.ModelSerializer):
+    exception = serializers.CharField(max_length=255)
+    hint = serializers.CharField(max_length=255)
+
+    class Meta:
+        model = SampleDataSet
+        fields = ['exception', 'hint', ]
+
+
 class DataSetSerializer(serializers.ModelSerializer):
     cpi = serializers.FloatField()
 
